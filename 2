@@ -1,0 +1,133 @@
+SZEGED-L2:
+
+hostname SZEGED-L2
+
+write memory
+
+SZEGED-ASA:
+
+hostname SZEGED-ASA
+
+enable password cisco
+
+interface GigabitEthernet1/1
+ nameif inside
+ security-level 100
+ ip address 1.1.1.1 255.255.255.252
+ no shutdown
+
+interface GigabitEthernet1/2
+ nameif outside
+ security-level 0
+ ip address 192.168.1.254 255.255.255.0
+ ipv6 address BAD:BABE:1234::DEF/64
+ ipv6 enable
+ no shutdown
+
+access-list traffic extended permit udp any any
+access-list traffic extended permit icmp any any
+access-list traffic extended deny tcp 192.168.10.0 255.255.255.0 host 192.168.1.1 eq www
+access-list traffic extended permit tcp any any
+
+access-group traffic in interface inside
+access-group traffic out interface inside
+
+policy-map global_policy
+ class inspection_default
+  inspect icmp
+
+router ospf 1
+ router-id 1.1.1.1
+ network 192.168.1.0 255.255.255.0 area 0
+ network 1.1.1.0 255.255.255.252 area 0
+
+write memory
+
+BARANYA-L3:
+
+hostname BARANYA-L3
+
+enable secret cisco
+
+ip dhcp excluded-address 192.168.10.254
+ip dhcp excluded-address 192.168.20.254
+
+ip dhcp pool BARANYA10
+ network 192.168.10.0 255.255.255.0
+ default-router 192.168.10.254
+ dns-server 192.168.1.1
+ip dhcp pool BARANYA20
+ network 192.168.20.0 255.255.255.0
+ default-router 192.168.20.254
+ dns-server 192.168.1.1
+
+ip routing
+
+username baranya privilege 15 password 0 baranya
+
+interface GigabitEthernet1/0/1
+ no switchport
+ ip address 1.1.1.2 255.255.255.252
+ no shutdown
+
+interface GigabitEthernet1/0/2
+ switchport trunk allowed vlan 10,20
+ switchport mode trunk
+ no shutdown
+
+interface GigabitEthernet1/0/3
+ no switchport
+ ip address 1.1.1.6 255.255.255.252
+ no shutdown
+
+vlan 10
+ name BARANYA10
+vlan 20
+ name BARANYA20
+
+interface Vlan10
+ ip address 192.168.10.254 255.255.255.0
+ no shutdown
+
+interface Vlan20
+ ip address 192.168.20.254 255.255.255.0
+ no shutdown
+
+router ospf 1
+ router-id 2.2.2.2
+ passive-interface Vlan10
+ passive-interface Vlan20
+ network 192.168.10.0 0.0.0.255 area 0
+ network 192.168.20.0 0.0.0.255 area 0
+ network 192.168.30.0 0.0.0.255 area 0
+ network 1.1.1.0 0.0.0.3 area 0
+ network 1.1.1.4 0.0.0.3 area 0
+
+line vty 0 15
+ login local
+
+write memory
+
+BARANYA-L2:
+
+hostname BARANYA-L2
+
+vlan 10
+ name BARANYA10
+vlan 20
+ name BARANYA20
+
+interface range GigabitEthernet2/0/1-12
+ switchport access vlan 10
+ switchport mode access
+
+interface range GigabitEthernet2/0/13-24
+ switchport access vlan 20
+ switchport mode access
+
+interface GigabitEthernet2/0/25
+ switchport trunk allowed vlan 10,20
+ switchport mode trunk
+
+write memory
+
