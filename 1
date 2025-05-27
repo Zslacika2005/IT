@@ -1,0 +1,94 @@
+Debrecen:
+hostname Debrecen
+
+interface FastEthernet0/0
+ ip address 200.10.10.66 255.255.255.240
+ ip nat outside
+ no shutdown
+
+interface FastEthernet0/1
+ ip address 10.20.30.1 255.255.255.0
+ ip nat inside
+ no shutdown
+
+router rip
+ version 2
+ passive-interface FastEthernet0/1
+ network 10.0.0.0
+ network 200.10.10.0
+ no auto-summary
+
+ip nat inside source static 10.20.30.99 200.10.10.67 
+
+write memory
+
+Bp:
+hostname Bp
+
+ip dhcp excluded-address 172.30.30.1 172.30.30.99
+ip dhcp pool LAN1
+ network 172.30.30.0 255.255.255.0
+ default-router 172.30.30.1
+ dns-server 200.10.10.67
+
+interface GigabitEthernet0/0
+ ip address 200.10.10.65 255.255.255.240
+ no shutdown
+
+interface GigabitEthernet0/1
+ ip address 200.10.10.129 255.255.255.252
+ no shutdown
+
+interface GigabitEthernet0/2
+ ip address 172.30.30.1 255.255.255.0
+ no shutdown
+
+router rip
+ version 2
+ passive-interface GigabitEthernet0/2
+ network 172.30.0.0
+ network 200.10.10.0
+ no auto-summary
+
+enable password BPena123
+line vty 0
+ password BPvty123
+ login
+
+write memory
+
+Szeged:
+hostname Szeged
+
+interface FastEthernet0/0
+ ip address 11.40.50.1 255.255.255.252
+ no shutdown
+
+interface FastEthernet0/1
+ ip address 200.10.10.130 255.255.255.252
+ no shutdown
+
+router rip
+ version 2
+ passive-interface FastEthernet0/0
+ network 11.0.0.0
+ network 192.168.22.0
+ network 200.10.10.0
+ no auto-summary
+
+write memory
+
+Bp-SW1:
+enable password BPena123
+
+interface Vlan1
+ ip address 172.30.30.3 255.255.255.0
+ no shutdown
+
+line vty 0
+ password BPvty123
+ login
+
+write memory
+
+
