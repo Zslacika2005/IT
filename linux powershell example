@@ -1,0 +1,162 @@
+pwrsh
+New-ADUser -Name "user1" -SamAccountName "user1" -UserPrincipalName "user1@domain.com" -Path 
+"OU=gyártás,DC=domain,DC=com" -AccountPassword (ConvertTo-SecureString "Jelszó123!" -AsPlainText -Force) -Enabled $true
+
+New-ADGroup -Name "gyártók" -GroupScope Global -GroupCategory Security -Path
+"OU=gyártás,DC=domain,DC=com"
+
+Add-ADGroupMember -Identity "gyártók" -Members "user1"
+
+ubuntu
+
+$sudo su - madmin
+
+# Mappák létrehozása
+#mkdir ~/proba
+#mkdir ~/archiv
+#mkdir ~/proba/masolando
+touch ~/proba/masolando/minta1.txt
+
+#rm -rf ~/torlendo
+
+cp -b ~/proba/masolando/minta1.txt ~/archiv/
+
+mv ~/proba/masolando/minta1.txt ~/proba/masolando/mintafajl.txt
+
+ls -R ~/proba
+#ls ~/archiv
+
+
+sudo groupadd vendeg
+sudo groupadd helyi
+
+sudo useradd -m -g helyi -G vendeg -s /bin/bash -p $(openssl passwd -1 acbx) minta1
+-m: Létrehozza a felhasználó home mappáját.
+-g helyi: Beállítja az elsődleges csoportot helyi-re.
+-G vendeg: Hozzáadja a felhasználót a vendeg csoporthoz másodlagos csoportként.
+-s /bin/bash: Beállítja a felhasználó alapértelmezett shelljét Bash-re.
+-p $(openssl passwd -1 acbx): Beállítja a jelszót acbx-re (a jelszó titkosítva kerül tárolásra).
+
+#getent group vendeg
+#getent group helyi
+
+Felhasználó ellenőrzése:
+#id minta1
+Képernyőkép készítése:ű
+# Képernyőkép készítése a terminálról
+#import -window root screenshot.png
+
+sudo chown minta1 ~/proba/masolando/mintafajl.txt
+
+sudo chmod 755 ~/proba/masolando/mintafajl.txt
+
+Az archiv mappa jogosultságait úgy módosítjuk, hogy a vendeg csoportnak legyen minden
+jogosultsága, mindenki másnak pedig semmilyen hozzáférése ne legyen.
+Először állítsuk be a vendeg csoportot az archiv mappa tulajdonos csoportjaként:
+#sudo chown :vendeg ~/archiveg ~/archiv
+Ezután állítsuk be a jogosultságokat:
+#sudo chmod 770 ~/archiv
+
+
+sudo apt update
+sudo apt install mysql-server
+
+#sudo mysql_secure_installation
+
+Jelszavak erősségének vizsgálata: Ne engedélyezd (válaszd a No lehetőséget).
+Root jelszó megváltoztatása: Ne változtasd meg (válaszd a No lehetőséget).
+Root felhasználó távolról való bejelentkezése: Ne engedélyezd (válaszd a No lehetőséget).
+Anonymous felhasználók eltávolítása: Távolítsd el (válaszd a Yes lehetőséget).
+Teszt adatbázis eltávolítása: Ne távolítsd el (válaszd a No lehetőséget).
+Privilégiumok frissítése: Engedélyezd (válaszd a Yes lehetőséget).
+
+#sudo mysql -u root -p
+
+# Privilégiumok alkalmazása
+FLUSH PRIVILEGES;
+# Szolgáltatás újraindítása
+sudo systemctl restart mysql
+Ellenőrzés:
+SELECT user, host FROM mysql.user;
+SHOW GRANTS FOR 'user'@'%';
+
+#sudo apt update
+#sudo apt install isc-dhcp-server
+
+#ip a
+Nyisd meg a konfigurációs fájlt:
+#sudo nano /etc/default/isc-dhcp-server
+Módosítsd a következő beállítást erre:
+INTERFACESv4="eth0"
+
+#sudo nano /etc/dhcp/dhcpd.conf
+A fájl legelejére / végére (lényeg, hogy ne ütközzön más parancsokkal - (ha esetleg van aktív
+parancs, akkor #-et kell tenni az elejére) - be kell írni:
+subnet 10.0.0.0 netmask 255.255.255.0 {
+    range 10.0.0.100 10.0.0.200;
+    option routers 10.0.0.1;
+    option domain-name-servers 10.0.0.10;
+}
+
+#sudo systemctl restart isc-dhcp-server
+
+#sudo systemctl status isc-dhcp-server
+
+ftp:
+#apt update
+#apt install vsftpd
+#cp /etc/vsftp.conf /etc/vsftpd.conf.orig
+#ufw status
+	#ufw enable
+	#ufw allow 20,21,990/tcp
+#ufw status
+	20,21,990/tcp		ALLOW	Anywhere
+	40000:50000/tcp		ALLOW	Anywhere
+	20,21,990/tcp (v6)	ALLOW	Anywhere (v6)
+	40000:50000/tcp (v6)	ALLOW	Anywhere (v6)
+#adduser testuser
+#mkdir /home/testuser/ftp
+#chown nobody:nogroup /home/testuser/ftp
+#chmod a-w /home/testuser/ftp
+#ls -la /home/testuser/ftp
+total 8
+dr-xr-xr-x 2 nobody nogroup 4096 Mar 24 14:53
+drwxr-xr-x 3 testuser testuser 4096 Mar 24 14:53
+#mkdir /home/testuser/ftp/fajlok
+#chown testuser:testuser /home/testuser/ftp/fajlok
+/etc/vsftpd.conf
+anonymus_enable=NO
+local_enable=YES
+write_enable=YES
+chroot_local_user=YES
+user_sub_token=$USER
+	local_root=/home/$USER/ftp
+userlist_enable=YES
+	userlist_file=/etc/felhasznalolista.list
+	userlist_deny=NO
+$ftp -p 192.168.0.1
+Connected to 192.168.0.1.
+220 (vsFTPd 3.0.3)
+Name (192.168.0.1:default): anonymous
+530 Permission denied.
+ftp: Login failed.
+ftp>
+
+$ftp -p 192.168.0.1
+Connected to 192.168.0.1.
+220 (vsFTPd 3.0.3)
+Name (192.168.0.1:default): nemletezek
+530 Permission denied.
+ftp: Login failed.
+ftp>
+
+$ftp -p 192.168.0.1
+Connected to 192.168.0.1.
+220 (vsFTPd 3.0.3)
+Name (192.168.0.1:default): testuser
+331 Please specify the password
+Password: Abc123456
+230 Login successful.
+Remote system type is UNIX.
+Using binary mode to transfer files.
+ftp>
