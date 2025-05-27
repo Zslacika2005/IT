@@ -1,0 +1,119 @@
+R1:
+hostname R1
+
+interface FastEthernet0/1
+ no ip address
+ no shutdown
+
+interface FastEthernet0/1.10
+ encapsulation dot1Q 10
+ ip address 192.168.10.254 255.255.255.0
+ ip helper-address 192.168.10.1
+
+interface FastEthernet0/1.20
+ encapsulation dot1Q 20
+ ip address 192.168.20.254 255.255.255.0
+ ip helper-address 192.168.10.1
+
+interface FastEthernet0/1.30
+ encapsulation dot1Q 30
+ ip address 192.168.30.254 255.255.255.0
+ ip helper-address 192.168.10.1
+
+interface FastEthernet0/1.40
+ encapsulation dot1Q 40
+ ip address 192.168.40.254 255.255.255.0
+ ip helper-address 192.168.10.1
+line vty 0
+ password cisco
+ login
+enable secret cisco
+write memory
+SW1:
+hostname SW1
+vlan 10
+ name VLAN10
+vlan 20
+ name VLAN20
+vlan 30
+ name VLAN30
+vlan 40
+ name VLAN40
+interface range GigabitEthernet1/0/3-6
+ switchport access vlan 10
+ switchport mode access
+ no shutdown
+interface range GigabitEthernet1/0/7-12
+ switchport access vlan 20
+ switchport mode access
+ no shutdown 
+interface range GigabitEthernet1/0/13-18
+ switchport access vlan 30
+ switchport mode access 
+ no shutdown
+interface range GigabitEthernet1/0/19-24
+ switchport access vlan 40
+ switchport mode access 
+ no shutdown
+interface GigabitEthernet1/0/2
+ switchport trunk allowed vlan 10,20,30,40
+ switchport mode trunk
+ no shutdown
+interface Vlan10
+ip address 192.168.10.100 255.255.255.0
+no shutdown
+
+interface Vlan20
+ip address 192.168.20.100 255.255.255.0
+no shutdown
+
+interface Vlan30
+ip address 192.168.30.100 255.255.255.0
+no shutdown
+
+interface Vlan40
+ip address 192.168.40.100 255.255.255.0 
+no shutdown
+
+line vty 0
+password cisco
+login 
+
+write memory
+
+SW2:
+
+hostname SW2
+vlan 10
+ name VLAN10
+vlan 20
+ name VLAN20
+vlan 30
+ name VLAN30
+vlan 40
+ name VLAN40
+interface range GigabitEthernet1/0/3-6
+ switchport access vlan 10
+ switchport mode access
+ no shutdown
+interface range GigabitEthernet1/0/7-12
+ switchport access vlan 20
+ switchport mode access
+ no shutdown 
+interface range GigabitEthernet1/0/13-18
+ switchport access vlan 30
+ switchport mode access 
+ no shutdown
+interface range GigabitEthernet1/0/19-24
+ switchport access vlan 40
+ switchport mode access 
+ no shutdown
+interface GigabitEthernet1/0/2
+ switchport trunk allowed vlan 10,20,30,40
+ switchport mode trunk
+ no shutdown
+interface GigabitEthernet1/0/1
+ switchport trunk allowed vlan 10,20,30,40
+ switchport mode trunk
+ no shutdown
+write memory
