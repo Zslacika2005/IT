@@ -1,0 +1,111 @@
+SW1:
+hostname SW1
+
+write memory
+
+SW2:
+hostname SW2
+
+vlan 5
+ name VLAN5
+vlan 10
+ name VLAN10
+
+interface range GigabitEthernet2/0/1-5
+ switchport mode access
+ switchport access vlan 5
+ no shutdown
+
+interface range GigabitEthernet2/0/6-10
+ switchport mode access
+ switchport access vlan 10
+ no shutdown
+
+interface GigabitEthernet2/0/11
+ switchport mode trunk
+ switchport trunk allowed vlan 5,10
+ no shutdown
+
+interface vlan 10
+ ip address 10.3.1.126 255.255.255.128
+ no shutdown
+
+line vty 0
+ password cisco
+ login
+
+write memory
+
+SW3:
+hostname SW3
+
+write memory
+
+R1:
+hostname R1
+
+interface GigabitEthernet0/0
+ ip address 192.168.10.1 255.255.0.0
+ no shutdown
+ 
+interface GigabitEthernet0/1
+ no shutdown
+interface GigabitEthernet0/1.5
+ encapsulation dot1Q 5
+ ip address 10.2.1.1 255.255.255.128
+ ip helper-address 10.10.10.20
+ no shutdown
+
+interface GigabitEthernet0/1.10
+ encapsulation dot1Q 10
+ ip address 10.3.1.1 255.255.255.128
+ ip helper-address 10.10.10.20
+ no shutdown
+
+interface GigabitEthernet0/2
+ ip address 10.10.10.1 255.255.255.0
+ no shutdown
+
+ip route 8.0.0.0 255.0.0.0 192.168.5.1
+
+username rg privilige 15 password vizsga
+
+line vty 0
+ login local
+
+write memory
+
+R2:
+
+hostname R2
+
+interface GigabitEthernet0/0
+ ip address 192.168.5.1 255.255.0.0
+ no shutdown
+ 
+interface GigabitEthernet0/1
+ ip address 8.1.1.1 255.0.0.0
+ ip access-group 120 in
+ ip helper-address 10.10.10.20
+ no shutdown
+
+ip route 10.0.0.0 255.0.0.0 192.168.10.1
+
+access-list 120 permit udp any any eq bootps
+access-list 120 permit udp any any eq bootpc
+access-list 120 permit udp any any eq domain
+access-list 120 permit icmp any any
+access-list 120 permit tcp host 8.1.1.101 10.10.10.0 0.0.0.255 eq ftp
+access-list 120 permit tcp host 8.1.1.101 10.10.10.0 0.0.0.255 eq ftp-data
+access-list 120 permit tcp host 8.1.1.101 10.10.10.0 0.0.0.255 eq ftp established
+access-list 120 permit tcp host 8.1.1.101 10.10.10.0 0.0.0.255 eq ftp-data established
+access-list 120 permit tcp any any eq www
+access-list 120 permit ip host 8.1.1.101 10.10.10.0 0.0.0.255
+access-list 120 deny ip any any
+username rg privilige 15 password vizsga
+
+
+line vty 0
+ login local
+
+write memory
